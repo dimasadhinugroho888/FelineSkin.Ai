@@ -1,0 +1,22 @@
+.env
+.env.*
+.vercel/
+.venv/
+.venv312/
+__pycache__/
+*.pyc
+
+# Training artifacts and local datasets
+*.pth
+CAT SKIN DISEASE/
+backup/
+web/_build/
+stubs/
+.kilo/
+
+# Local reports/images generated during experiments
+classification_report.txt
+confusion_matrix.png
+training_history.json
+training_history.png
+val_accuracy.txt

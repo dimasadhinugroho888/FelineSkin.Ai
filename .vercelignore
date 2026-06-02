@@ -1,0 +1,14 @@
+*
+
+!api/
+!api/**
+
+!web/
+!web/index.html
+!web/app.js
+!web/styles.css
+!web/model/
+!web/model/**
+
+!vercel.json
+!package.json
