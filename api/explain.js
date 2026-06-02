@@ -1,9 +1,12 @@
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 const MODEL_CANDIDATES = [
-  "deepseek/deepseek-v4-flash:free",
-  "google/gemma-3-27b-it:free",
-  "mistralai/mistral-7b-instruct:free",
+  "openrouter/free",
+  "google/gemma-4-31b-it:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "moonshotai/kimi-k2.6:free",
+  "qwen/qwen3-next-80b-a3b-instruct:free",
+  "openai/gpt-oss-20b:free",
 ];
 
 function buildPrompt({ diseaseName, confidence }) {
@@ -23,6 +26,8 @@ Catatan:
 }
 
 async function requestOpenRouter(apiKey, prompt) {
+  const failures = [];
+
   for (const model of MODEL_CANDIDATES) {
     try {
       const response = await fetch(OPENROUTER_URL, {
@@ -30,15 +35,18 @@ async function requestOpenRouter(apiKey, prompt) {
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
+          "X-Title": "FelineSkin.AI",
         },
         body: JSON.stringify({
           model,
           messages: [{ role: "user", content: prompt }],
           temperature: 0.3,
+          max_tokens: 500,
         }),
       });
 
       if (!response.ok) {
+        failures.push(`${model}: HTTP ${response.status}`);
         continue;
       }
 
@@ -47,12 +55,18 @@ async function requestOpenRouter(apiKey, prompt) {
       if (text) {
         return { ok: true, text };
       }
+
+      failures.push(`${model}: empty response`);
     } catch (_err) {
-      // try next model
+      failures.push(`${model}: request failed`);
     }
   }
 
-  return { ok: false, text: "AI explanation sedang tidak tersedia. Silakan coba lagi beberapa saat." };
+  return {
+    ok: false,
+    text: "AI explanation sedang tidak tersedia. Silakan coba lagi beberapa saat.",
+    failures,
+  };
 }
 
 module.exports = async function handler(req, res) {
@@ -77,7 +91,7 @@ module.exports = async function handler(req, res) {
   const result = await requestOpenRouter(apiKey, prompt);
 
   if (!result.ok) {
-    res.status(503).json({ explanation: result.text });
+    res.status(503).json({ explanation: result.text, details: result.failures });
     return;
   }
 
