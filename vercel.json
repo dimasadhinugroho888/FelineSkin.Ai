@@ -3,6 +3,7 @@
     { "source": "/", "destination": "/web/index.html" },
     { "source": "/app.js", "destination": "/web/app.js" },
     { "source": "/styles.css", "destination": "/web/styles.css" },
+    { "source": "/logo.png", "destination": "/web/logo.png" },
     { "source": "/model/:path*", "destination": "/web/model/:path*" }
   ]
 }
