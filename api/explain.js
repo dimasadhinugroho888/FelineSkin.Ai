@@ -1,16 +1,10 @@
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 const MODEL_CANDIDATES = [
-  "baidu/cobuddy:free",
-  "deepseek/deepseek-v4-flash:free",
-  "openrouter/owl-alpha",
-  "google/gemma-4-31b-it:free",
-  "mistralai/mistral-7b-instruct:free",
-  "openrouter/free",
-  "google/gemma-4-26b-a4b-it:free",
-  "moonshotai/kimi-k2.6:free",
-  "qwen/qwen3-next-80b-a3b-instruct:free",
-  "openai/gpt-oss-20b:free",
+  "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "openai/gpt-oss-120b:free",
+  "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+  "qwen/qwen3-next-80b-a3b-instruct:free"
 ];
 
 function buildPrompt({ diseaseKey, diseaseName, confidence }) {

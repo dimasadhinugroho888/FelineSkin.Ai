@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cat Skin AI Analyzer</title>
+  <title>FelineSkin.AI - Cat Skin Disease Analyzer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
@@ -14,70 +14,168 @@
 <body>
   <div class="bg-shape shape-1"></div>
   <div class="bg-shape shape-2"></div>
+  <div class="bg-shape shape-3"></div>
 
-  <main class="container">
-    <header class="hero glass">
-      <p class="badge">AI Web Classifier</p>
-      <h1>Cat Skin Disease Analyzer</h1>
-      <p class="subtitle">Klasifikasi penyakit kulit kucing dengan validasi input, heatmap area penting, AI explanation, dan rekomendasi dokter hewan terdekat.</p>
+  <!-- Sidebar Drawer -->
+  <aside id="sidebar" class="sidebar glass">
+    <div class="sidebar-header">
+      <div class="brand">
+        <img src="logo.png" alt="FelineSkin.AI Logo" class="brand-logo" />
+        <span class="brand-name">FelineSkin<span class="brand-dot">.AI</span></span>
+      </div>
+      <button id="sidebarClose" class="sidebar-close-btn">&times;</button>
+    </div>
+    
+    <div class="sidebar-content">
+      <div class="sidebar-section">
+        <h3>ℹ️ Tentang Aplikasi</h3>
+        <p>FelineSkin.AI adalah platform cerdas berbasis Machine Learning lokal untuk mendeteksi indikasi penyakit kulit kucing secara cepat dan aman di browser Anda.</p>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3>🚀 Fitur Utama</h3>
+        <ul class="sidebar-list">
+          <li>🔍 Deteksi & Validasi Gambar Instan</li>
+          <li>🐈 Klasifikasi 4 Kondisi Kulit Kucing</li>
+          <li>🗺️ Grad-CAM Heatmap Visualisasi</li>
+          <li>🤖 Eksplanasi AI Detail dari Ahli</li>
+          <li>📍 Pencarian Klinik Hewan Terdekat</li>
+        </ul>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>📖 Cara Penggunaan</h3>
+        <ol class="sidebar-list list-ordered">
+          <li>Unggah foto jarak dekat area kulit kucing Anda.</li>
+          <li>Tunggu sistem selesai memvalidasi kelayakan gambar.</li>
+          <li>Klik <strong>Analisis Sekarang</strong> untuk memulai proses AI.</li>
+          <li>Pelajari rekomendasi & cari dokter hewan jika diperlukan.</li>
+        </ol>
+      </div>
+
+      <div class="sidebar-section warning-box">
+        <h3>⚠️ Aturan Foto</h3>
+        <p>Sistem ini hanya menerima dan mendeteksi foto kucing atau tekstur kulit kucing. Gambar anjing, wajah manusia, atau objek acak lainnya akan ditolak otomatis.</p>
+      </div>
+
+      <div class="sidebar-section medical-box">
+        <h3>🏥 Penafian Medis</h3>
+        <p>Hasil analisis dari FelineSkin.AI bersifat edukasi dan indikasi awal. Ini <strong>bukan diagnosis definitif</strong>. Harap konsultasikan ke dokter hewan profesional untuk penanganan resmi.</p>
+      </div>
+
+      <div class="sidebar-section dev-section">
+        <h3>👤 Hubungi Pengembang</h3>
+        <p class="sidebar-desc">Lihat profil pengembang web ini:</p>
+        <a href="https://portofoliodimasadhinugroho.great-site.net" target="_blank" rel="noreferrer" class="dev-link-btn">
+          <span>Portofolio Dimas Adhi Nugroho</span>
+        </a>
+      </div>
+    </div>
+  </aside>
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+  <header class="navbar-wrapper">
+    <nav class="navbar glass">
+      <div class="navbar-brand-group">
+        <button id="sidebarToggle" class="sidebar-toggle-btn" title="Menu Informasi">☰</button>
+        <div class="brand">
+          <img src="logo.png" alt="FelineSkin.AI Logo" class="brand-logo" />
+          <span class="brand-name">FelineSkin<span class="brand-dot">.AI</span></span>
+        </div>
+      </div>
       <div class="status-row">
         <span class="status-dot" id="statusDot"></span>
-        <span id="statusText">Menyiapkan model...</span>
+        <span id="statusText" class="status-text">Menyiapkan engine AI...</span>
       </div>
-    </header>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero glass">
+      <div class="hero-content">
+        <p class="badge">Advanced Web Classifier</p>
+        <h1>Smart Cat Skin Disease Analyzer</h1>
+        <p class="subtitle">Solusi cerdas klasifikasi kesehatan dan penyakit kulit kucing secara instan. Menggunakan pemrosesan AI lokal berpresisi tinggi, visualisasi Grad-CAM Heatmap, serta konsultasi penjelasan ahli berbasis AI.</p>
+      </div>
+    </section>
 
     <section class="panel grid">
       <article class="card glass">
-        <h2>1) Input Gambar</h2>
+        <h2>1) Upload Foto Kulit Kucing</h2>
+        <p class="card-desc">Unggah foto jarak dekat area kulit kucing yang bermasalah untuk divalidasi oleh sistem.</p>
         <label class="dropzone" id="dropzone" for="fileInput">
           <input type="file" id="fileInput" accept="image/*" hidden />
-          <span class="drop-title">Tarik file ke sini atau klik untuk upload</span>
+          <div class="drop-icon">📸</div>
+          <span class="drop-title">Tarik file ke sini atau klik untuk memilih</span>
           <span class="drop-sub">Format: JPG, PNG, JPEG</span>
         </label>
         <img id="preview" alt="preview" class="preview hidden" />
         <button id="analyzeBtn" disabled>Analisis Sekarang</button>
-        <p id="validationText" class="helper">Belum ada validasi gambar.</p>
+        <div class="validation-wrapper">
+          <span class="val-icon">🛡️</span>
+          <p id="validationText" class="helper">Belum ada gambar yang diunggah.</p>
+        </div>
       </article>
 
       <article class="card glass">
-        <h2>2) Hasil Prediksi</h2>
+        <h2>2) Hasil Diagnosis AI</h2>
+        <p class="card-desc">Analisis persentase kemungkinan tipe penyakit kulit kucing berdasarkan model deep learning.</p>
         <div class="result-top">
           <p class="label">Prediksi Utama</p>
           <p class="prediction" id="predictionText">-</p>
-          <p class="confidence" id="confidenceText">Confidence: -</p>
+          <div class="confidence-badge">
+            <span class="confidence-label">Tingkat Akurasi</span>
+            <span class="confidence" id="confidenceText">-</span>
+          </div>
         </div>
-        <div id="probabilityList" class="probability-list"></div>
+        <div class="probability-section">
+          <p class="prob-title">Distribusi Probabilitas Kelas</p>
+          <div id="probabilityList" class="probability-list"></div>
+        </div>
       </article>
     </section>
 
     <section class="panel grid single-mobile">
       <article class="card glass">
-        <h2>3) Heatmap Area Penting (Grad-CAM style)</h2>
-        <img id="camImage" class="preview hidden" alt="heatmap gradcam" />
-        <p class="helper" id="camStatus">Heatmap belum tersedia.</p>
+        <h2>3) Heatmap Area Terdampak (Grad-CAM)</h2>
+        <p class="card-desc">Visualisasi area penting pada foto yang paling memengaruhi keputusan klasifikasi AI.</p>
+        <div class="media-container">
+          <img id="camImage" class="preview hidden" alt="heatmap gradcam" />
+          <p class="helper" id="camStatus">Heatmap belum tersedia.</p>
+        </div>
       </article>
 
       <article class="card glass">
-        <h2>4) AI Explanation</h2>
-        <div id="aiExplanation" class="explanation-box">Belum ada penjelasan.</div>
+        <h2>4) Informasi Penjelasan AI</h2>
+        <p class="card-desc">Eksplanasi lengkap mengenai deskripsi penyakit, penyebab umum, gejala, dan saran penanganan.</p>
+        <div id="aiExplanation" class="explanation-box">Silakan upload gambar dan lakukan analisis terlebih dahulu untuk mendapatkan eksplanasi AI.</div>
       </article>
     </section>
 
-    <section class="card glass">
-      <h2>5) Cari Dokter Hewan</h2>
+    <section class="card glass map-section">
+      <h2>5) Cari Dokter & Klinik Hewan Terdekat</h2>
+      <p class="card-desc">Temukan klinik, puskeswan, atau dokter hewan terdekat untuk penanganan medis profesional.</p>
       <div class="map-controls">
         <select id="serviceType">
           <option value="dokter hewan">Dokter Hewan</option>
           <option value="klinik hewan">Klinik Hewan</option>
           <option value="puskeswan">Puskeswan</option>
         </select>
-        <input id="locationInput" type="text" placeholder="Contoh: Jakarta Selatan" />
-        <button id="findMapBtn" class="secondary">Update Maps</button>
+        <input id="locationInput" type="text" placeholder="Masukkan kota/lokasi Anda (contoh: Jakarta Selatan)" />
+        <button id="findMapBtn" class="secondary">Cari di Peta</button>
       </div>
       <iframe id="mapFrame" class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-      <a id="mapLink" class="map-link" href="#" target="_blank" rel="noreferrer">Buka di Google Maps</a>
+      <div class="map-footer">
+        <a id="mapLink" class="map-link" href="#" target="_blank" rel="noreferrer">
+          <span>📍 Buka di Google Maps Resmi</span>
+        </a>
+      </div>
     </section>
   </main>
+
+  <footer class="main-footer">
+    <p>&copy; 2026 FelineSkin.AI. All rights reserved. Platform ini ditujukan untuk edukasi awal, bukan pengganti diagnosis medis dokter hewan.</p>
+  </footer>
 
   <script src="app.js"></script>
 </body>

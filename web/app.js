@@ -21,6 +21,7 @@ const state = {
   std: [0.229, 0.224, 0.225],
   imageFile: null,
   lastPrediction: null,
+  isValidImage: false,
 };
 
 const statusDot = document.getElementById("statusDot");
@@ -55,12 +56,34 @@ function updateImage(file) {
   state.imageFile = file;
   preview.src = URL.createObjectURL(file);
   preview.classList.remove("hidden");
-  analyzeBtn.disabled = !state.model;
-
-  validationText.textContent = "Belum divalidasi.";
+  
+  // Clear previous outputs
+  predictionText.textContent = "-";
+  confidenceText.textContent = "Confidence: -";
+  probabilityList.innerHTML = "";
   camImage.classList.add("hidden");
   camStatus.textContent = "Heatmap belum tersedia.";
   aiExplanation.textContent = "Belum ada penjelasan.";
+  
+  validationText.style.color = "";
+  validationText.textContent = "Memvalidasi gambar...";
+  analyzeBtn.disabled = true;
+  state.isValidImage = false;
+
+  preview.onload = async () => {
+    const result = await validateInputImage(preview);
+    setValidationMessage(result);
+    state.isValidImage = result.ok;
+    
+    if (state.model && state.isValidImage) {
+      analyzeBtn.disabled = false;
+    } else {
+      analyzeBtn.disabled = true;
+      if (!result.ok) {
+        alert("Peringatan: Gambar tidak diizinkan! Harap upload foto kucing atau kulit kucing yang jelas.");
+      }
+    }
+  };
 }
 
 function createProbabilityRows(probabilities) {
@@ -169,6 +192,49 @@ async function detectCat(imgEl) {
 async function validateInputImage(imgEl) {
   const catRes = await detectCat(imgEl);
   const textureRes = closeupTextureCheck(imgEl);
+
+  // Check if it is explicitly detected as a dog or other non-cat animal
+  const dogKeywords = [
+    "dog", "puppy", "canine", "terrier", "retriever", "collie", "spaniel", 
+    "hound", "mastiff", "poodle", "bulldog", "pug", "shepherd", "boxer", 
+    "beagle", "corgi", "husky", "chihuahua", "pinscher", "pekingese", 
+    "pomeranian", "shih", "toy dog", "working dog"
+  ];
+
+  const detectedDog = catRes.preds.some((p) => {
+    const label = String(p.className || "").toLowerCase();
+    return dogKeywords.some(keyword => label.includes(keyword)) && p.probability > 0.15;
+  });
+
+  if (detectedDog) {
+    return {
+      ok: false,
+      severity: "bad",
+      message: "Gambar terdeteksi sebagai anjing. Harap masukkan foto kucing atau kulit kucing saja.",
+      details: { catRes, textureRes },
+    };
+  }
+
+  // Check if it is explicitly detected as a human or human part
+  const humanKeywords = [
+    "human", "person", "man", "woman", "boy", "girl", "child", "baby", "face", 
+    "groom", "gown", "t-shirt", "jersey", "suit", "coat", "jacket", "shirt", 
+    "wig", "hair", "mask", "sunglass", "glasses", "spectacles", "bow tie", "necktie"
+  ];
+
+  const detectedHuman = catRes.preds.some((p) => {
+    const label = String(p.className || "").toLowerCase();
+    return humanKeywords.some(keyword => label.includes(keyword)) && p.probability > 0.15;
+  });
+
+  if (detectedHuman) {
+    return {
+      ok: false,
+      severity: "bad",
+      message: "Gambar terdeteksi sebagai manusia/bagian tubuh manusia. Harap masukkan foto kucing atau kulit kucing saja.",
+      details: { catRes, textureRes },
+    };
+  }
 
   if (catRes.isCat) {
     return {
@@ -323,19 +389,15 @@ function updateMap() {
 }
 
 async function predict() {
-  if (!state.model || !state.imageFile) return;
+  if (!state.model || !state.imageFile || !state.isValidImage) {
+    alert("Peringatan: Gambar tidak diizinkan! Harap upload foto kucing atau kulit kucing yang jelas sebelum memulai analisis.");
+    return;
+  }
 
   analyzeBtn.disabled = true;
   analyzeBtn.textContent = "Menganalisis...";
 
   try {
-    const validation = await validateInputImage(preview);
-    setValidationMessage(validation);
-
-    if (!validation.ok) {
-      throw new Error("Validasi input gagal");
-    }
-
     const inputTensor = preprocessImageToTensor(preview);
     let logits = await state.model.executeAsync(inputTensor, LOGITS_NODE);
     if (Array.isArray(logits)) {
@@ -370,7 +432,7 @@ async function predict() {
     setStatus(`Gagal inferensi: ${error.message}`, false);
   } finally {
     analyzeBtn.textContent = "Analisis Sekarang";
-    analyzeBtn.disabled = false;
+    analyzeBtn.disabled = !(state.imageFile && state.isValidImage);
   }
 }
 
@@ -392,6 +454,9 @@ async function loadModel() {
   if (window.location.protocol === "file:") {
     throw new Error("Aplikasi dibuka via file://. Jalankan lewat server lokal (http://127.0.0.1:8080). ");
   }
+
+  setStatus("Menyiapkan engine AI...");
+  await tf.ready();
 
   setStatus("Mengunduh model AI...");
   await loadMeta();
@@ -422,7 +487,7 @@ async function loadModel() {
   state.catDetector = await mobilenet.load({ version: 2, alpha: 1.0 });
 
   setStatus("Model siap digunakan", true);
-  analyzeBtn.disabled = !state.imageFile;
+  analyzeBtn.disabled = !(state.imageFile && state.isValidImage);
 }
 
 function setupUploadHandlers() {
@@ -453,7 +518,30 @@ function setupUploadHandlers() {
   });
 }
 
+function setupSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const sidebarToggle = document.getElementById("sidebarToggle");
+  const sidebarClose = document.getElementById("sidebarClose");
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+  if (!sidebar || !sidebarToggle || !sidebarClose || !sidebarOverlay) return;
+
+  sidebarToggle.addEventListener("click", () => {
+    sidebar.classList.add("open");
+    sidebarOverlay.classList.add("active");
+  });
+
+  const closeSidebar = () => {
+    sidebar.classList.remove("open");
+    sidebarOverlay.classList.remove("active");
+  };
+
+  sidebarClose.addEventListener("click", closeSidebar);
+  sidebarOverlay.addEventListener("click", closeSidebar);
+}
+
 async function init() {
+  setupSidebar();
   setupUploadHandlers();
   analyzeBtn.addEventListener("click", predict);
   findMapBtn.addEventListener("click", updateMap);
