@@ -54,8 +54,6 @@ function formatClassName(name) {
 
 function updateImage(file) {
   state.imageFile = file;
-  preview.src = URL.createObjectURL(file);
-  preview.classList.remove("hidden");
   
   // Clear previous outputs
   predictionText.textContent = "-";
@@ -70,6 +68,7 @@ function updateImage(file) {
   analyzeBtn.disabled = true;
   state.isValidImage = false;
 
+  // Register onload event handler BEFORE setting src to avoid race conditions
   preview.onload = async () => {
     const result = await validateInputImage(preview);
     setValidationMessage(result);
@@ -84,6 +83,14 @@ function updateImage(file) {
       }
     }
   };
+
+  preview.src = URL.createObjectURL(file);
+  preview.classList.remove("hidden");
+
+  // Reset fileInput value so selecting the same file again triggers change event
+  if (fileInput) {
+    fileInput.value = "";
+  }
 }
 
 function createProbabilityRows(probabilities) {
