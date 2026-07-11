@@ -540,8 +540,175 @@ function setupSidebar() {
   sidebarOverlay.addEventListener("click", closeSidebar);
 }
 
+function setupFelinaChatbot() {
+  const widget = document.getElementById("felinaWidget");
+  const toggleBtn = document.getElementById("felinaToggle");
+  const chatWindow = document.getElementById("felinaChatWindow");
+  const closeBtn = document.getElementById("felinaClose");
+  const chatBody = document.getElementById("felinaChatBody");
+  const inputEl = document.getElementById("felinaInput");
+  const sendBtn = document.getElementById("felinaSend");
+  const badge = toggleBtn?.querySelector(".felina-toggle-badge");
+
+  if (!widget || !toggleBtn || !chatWindow || !closeBtn || !chatBody || !inputEl || !sendBtn) return;
+
+  let messagesContext = [];
+  let isSending = false;
+
+  // Toggle chat window
+  toggleBtn.addEventListener("click", () => {
+    chatWindow.classList.toggle("hidden");
+    if (!chatWindow.classList.contains("hidden")) {
+      if (badge) badge.classList.add("hidden-badge");
+      inputEl.focus();
+      scrollToBottom();
+    }
+  });
+
+  // Close chat window
+  closeBtn.addEventListener("click", () => {
+    chatWindow.classList.add("hidden");
+  });
+
+  // Scroll to bottom helper
+  function scrollToBottom() {
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  // Create message bubble
+  function appendMessage(role, text) {
+    const isBot = role === "assistant";
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `felina-msg ${isBot ? "felina-msg-bot" : "felina-msg-user"}`;
+
+    const avatarHtml = isBot ? `<img src="logo felina.png" alt="Felina" class="felina-bubble-avatar" />` : "";
+    
+    // Convert newlines to breaks safely, and bold tags
+    let formattedText = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\n/g, "<br>")
+      .replace(/&lt;strong&gt;/g, "<strong>")
+      .replace(/&lt;\/strong&gt;/g, "</strong>")
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+
+    msgDiv.innerHTML = `
+      ${avatarHtml}
+      <div class="felina-bubble">${formattedText}</div>
+    `;
+
+    chatBody.appendChild(msgDiv);
+    scrollToBottom();
+  }
+
+  // Show/Hide typing indicator
+  let typingIndicatorDiv = null;
+  function showTypingIndicator() {
+    if (typingIndicatorDiv) return;
+    typingIndicatorDiv = document.createElement("div");
+    typingIndicatorDiv.className = "felina-msg felina-msg-bot felina-typing";
+    typingIndicatorDiv.innerHTML = `
+      <img src="logo felina.png" alt="Felina" class="felina-bubble-avatar" />
+      <div class="felina-bubble">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    `;
+    chatBody.appendChild(typingIndicatorDiv);
+    scrollToBottom();
+  }
+
+  function hideTypingIndicator() {
+    if (typingIndicatorDiv) {
+      typingIndicatorDiv.remove();
+      typingIndicatorDiv = null;
+    }
+  }
+
+  // Send message function
+  async function sendMessage(text) {
+    if (!text.trim() || isSending) return;
+
+    isSending = true;
+    inputEl.value = "";
+    inputEl.disabled = true;
+    sendBtn.disabled = true;
+
+    // Append user message
+    appendMessage("user", text);
+    messagesContext.push({ role: "user", content: text });
+
+    showTypingIndicator();
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: messagesContext,
+        }),
+      });
+
+      hideTypingIndicator();
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      const reply = data.reply || "Maaf, Felina sedang bingung. Bisa ulangi pertanyaannya? 🐱";
+      
+      appendMessage("assistant", reply);
+      messagesContext.push({ role: "assistant", content: reply });
+
+    } catch (err) {
+      console.error("Chat error:", err);
+      hideTypingIndicator();
+      appendMessage("assistant", "Koneksi terganggu. Silakan pastikan server aktif dan coba lagi beberapa saat ya! 🐾");
+    } finally {
+      isSending = false;
+      inputEl.disabled = false;
+      sendBtn.disabled = false;
+      inputEl.focus();
+      scrollToBottom();
+    }
+  }
+
+  // Form submits
+  sendBtn.addEventListener("click", () => {
+    sendMessage(inputEl.value);
+  });
+
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(inputEl.value);
+    }
+  });
+
+  // Template Quick Questions
+  chatBody.addEventListener("click", (e) => {
+    const btn = e.target.closest(".felina-template-btn");
+    if (btn) {
+      const query = btn.getAttribute("data-q");
+      if (query) {
+        // Remove templates container after first interaction to save space
+        const templates = chatBody.querySelector(".felina-templates");
+        if (templates) templates.remove();
+        
+        sendMessage(query);
+      }
+    }
+  });
+}
+
 async function init() {
   setupSidebar();
+  setupFelinaChatbot();
   setupUploadHandlers();
   analyzeBtn.addEventListener("click", predict);
   findMapBtn.addEventListener("click", updateMap);

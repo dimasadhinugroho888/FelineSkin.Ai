@@ -177,6 +177,57 @@
     <p>&copy; 2026 FelineSkin.AI. All rights reserved. Platform ini ditujukan untuk edukasi awal, bukan pengganti diagnosis medis dokter hewan.</p>
   </footer>
 
+  <!-- Felina Floating Chatbot -->
+  <div id="felinaWidget" class="felina-widget">
+
+    <!-- Chat Window -->
+    <div id="felinaChatWindow" class="felina-chat-window hidden">
+      <div class="felina-chat-header">
+        <div class="felina-header-brand">
+          <img src="logo felina.png" alt="Felina" class="felina-avatar-small" />
+          <div>
+            <p class="felina-name">Felina</p>
+            <p class="felina-tagline">Asisten Kucing AI 🐾</p>
+          </div>
+        </div>
+        <button id="felinaClose" class="felina-close-btn">&times;</button>
+      </div>
+
+      <div id="felinaChatBody" class="felina-chat-body">
+        <!-- Welcome message -->
+        <div class="felina-msg felina-msg-bot">
+          <img src="logo felina.png" alt="Felina" class="felina-bubble-avatar" />
+          <div class="felina-bubble">
+            Halo! 👋 Aku <strong>Felina</strong>, asisten AI khusus kucing dari FelineSkin.AI! 🐱<br><br>
+            Tanya aku apa saja tentang kucing — kesehatan, perawatan, penyakit, ras, atau nutrisinya!
+          </div>
+        </div>
+        <!-- Quick question templates -->
+        <div class="felina-templates">
+          <p class="felina-template-label">💬 Pertanyaan Cepat:</p>
+          <button class="felina-template-btn" data-q="Apa tanda-tanda kucing terkena penyakit kulit?">🔍 Tanda penyakit kulit kucing</button>
+          <button class="felina-template-btn" data-q="Bagaimana cara merawat kucing yang baru saya adopsi?">🏠 Cara merawat kucing baru</button>
+          <button class="felina-template-btn" data-q="Makanan apa yang baik dan buruk untuk kucing?">🍗 Makanan baik & buruk untuk kucing</button>
+          <button class="felina-template-btn" data-q="Kapan kucing perlu dibawa ke dokter hewan?">🏥 Kapan perlu ke dokter hewan?</button>
+          <button class="felina-template-btn" data-q="Bagaimana cara mencegah kutu pada kucing?">🐛 Cara mencegah kutu kucing</button>
+        </div>
+      </div>
+
+      <div class="felina-chat-footer">
+        <textarea id="felinaInput" class="felina-input" placeholder="Tanya tentang kucing..." rows="1"></textarea>
+        <button id="felinaSend" class="felina-send-btn" title="Kirim">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Floating Trigger Button -->
+    <button id="felinaToggle" class="felina-toggle-btn" title="Chat dengan Felina">
+      <img src="logo felina.png" alt="Felina" class="felina-toggle-avatar" />
+      <span class="felina-toggle-badge">1</span>
+    </button>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
