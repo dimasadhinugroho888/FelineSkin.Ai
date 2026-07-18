@@ -6,6 +6,8 @@
     { "source": "/logo.png", "destination": "/web/logo.png" },
     { "source": "/logo felina.png", "destination": "/web/logo felina.png" },
     { "source": "/logo%20felina.png", "destination": "/web/logo felina.png" },
-    { "source": "/model/:path*", "destination": "/web/model/:path*" }
+    { "source": "/model/:path*", "destination": "/web/model/:path*" },
+    { "source": "/manifest.json", "destination": "/web/manifest.json" },
+    { "source": "/sw.js", "destination": "/web/sw.js" }
   ]
 }
