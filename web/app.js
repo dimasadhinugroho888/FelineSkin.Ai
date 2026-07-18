@@ -733,6 +733,8 @@ async function init() {
   // Handle Custom PWA Install Trigger
   let deferredPrompt;
   const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+  const sidebarPwaSection = document.getElementById('sidebarPwaSection');
+  const sidebarPwaInstallBtn = document.getElementById('sidebarPwaInstallBtn');
 
   window.addEventListener('beforeinstallprompt', (e) => {
     // Prevent the mini-infobar from appearing on mobile
@@ -744,22 +746,36 @@ async function init() {
       pwaInstallBtn.style.display = 'flex';
       pwaInstallBtn.classList.remove('hidden');
     }
+    if (sidebarPwaSection) {
+      sidebarPwaSection.classList.remove('hidden');
+    }
   });
 
-  if (pwaInstallBtn) {
-    pwaInstallBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      // Show the install prompt
-      deferredPrompt.prompt();
-      // Wait for the user to respond to the prompt
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(`User response to the install prompt: ${outcome}`);
-      // We've used the prompt, and can't use it again, discard it
-      deferredPrompt = null;
-      // Hide the install button
+  const triggerInstall = async () => {
+    if (!deferredPrompt) return;
+    // Show the install prompt
+    deferredPrompt.prompt();
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+    // We've used the prompt, and can't use it again, discard it
+    deferredPrompt = null;
+    
+    // Hide buttons
+    if (pwaInstallBtn) {
       pwaInstallBtn.style.display = 'none';
       pwaInstallBtn.classList.add('hidden');
-    });
+    }
+    if (sidebarPwaSection) {
+      sidebarPwaSection.classList.add('hidden');
+    }
+  };
+
+  if (pwaInstallBtn) {
+    pwaInstallBtn.addEventListener('click', triggerInstall);
+  }
+  if (sidebarPwaInstallBtn) {
+    sidebarPwaInstallBtn.addEventListener('click', triggerInstall);
   }
 
   window.addEventListener('appinstalled', (event) => {
@@ -767,6 +783,9 @@ async function init() {
     if (pwaInstallBtn) {
       pwaInstallBtn.style.display = 'none';
       pwaInstallBtn.classList.add('hidden');
+    }
+    if (sidebarPwaSection) {
+      sidebarPwaSection.classList.add('hidden');
     }
   });
 
