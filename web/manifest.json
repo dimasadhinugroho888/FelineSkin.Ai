@@ -1,0 +1,36 @@
+{
+  "name": "FelineSkin.AI - Cat Skin Disease Analyzer",
+  "short_name": "FelineSkin.AI",
+  "description": "Smart Cat Skin Disease Analyzer - Solusi cerdas klasifikasi kesehatan dan penyakit kulit kucing secara instan berbasis Machine Learning lokal.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0d0e12",
+  "theme_color": "#0d0e12",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
