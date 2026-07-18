@@ -9,6 +9,8 @@
 !web/styles.css
 !web/logo.png
 !web/logo felina.png
+!web/manifest.json
+!web/sw.js
 !web/model/
 !web/model/**
 
