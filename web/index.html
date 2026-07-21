@@ -119,9 +119,6 @@
         </div>
       </div>
       <div class="navbar-right-group" style="display: flex; align-items: center; gap: 12px;">
-        <button id="pwaInstallBtn" class="pwa-install-btn hidden" style="background: linear-gradient(135deg, #ff7b00, #ffae00); color: #fff; border: none; padding: 6px 12px; border-radius: 20px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: none; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(255, 123, 0, 0.3); transition: transform 0.2s;">
-          📥 Pasang Aplikasi
-        </button>
         <div class="status-row">
           <span class="status-dot" id="statusDot"></span>
           <span id="statusText" class="status-text">Menyiapkan engine AI...</span>
@@ -260,6 +257,11 @@
         </button>
       </div>
     </div>
+
+    <!-- PWA Install Button Floating -->
+    <button id="pwaInstallBtn" class="pwa-install-btn-floating hidden">
+      📥 Pasang Aplikasi
+    </button>
 
     <!-- Floating Trigger Button -->
     <button id="felinaToggle" class="felina-toggle-btn" title="Chat dengan Felina">
